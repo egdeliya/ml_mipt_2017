@@ -1,5 +1,11 @@
 import os
 import numpy as np
+import math
+import pandas as pd
+
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+
 
 # Quality functions
 def qualitySSE(x,y):
@@ -53,7 +59,30 @@ def qualityMedianAE(x,y):
     # y - forecasts
     return ((x-y).abs()).median(), (x-y).abs()
 
-def ExponentialSmoothing(x, h, Params):
+def BuildForecast(h, ts, AlgName, AlgTitle, ParamsArray, step='D'):
+	FRC_TS = dict()
+	for p in ParamsArray:
+		frc_horizon = pd.date_range(ts.index[-1], periods=h+1, freq=step)[1:]
+		frc_ts = pd.DataFrame(index = ts.index.append(frc_horizon), columns = ts.columns)
+		
+		for cntr in ts.columns:
+			frc_ts[cntr] = eval(AlgName)(ts[cntr], h, p)
+		
+#         frc_ts.columns = frc_ts.columns+('%s %s' % (AlgTitle, p))
+		FRC_TS['%s %s' % (AlgTitle, p)] = frc_ts
+	return FRC_TS
+
+def plotTSForecast(ts, frc_ts, ts_num=0, alg_title=''):
+	frc_ts.columns = ts.columns+'; '+alg_title
+	ts[ts.columns[0]].plot(style='b', linewidth=1.0, marker='o')
+	ax = frc_ts[frc_ts.columns[0]].plot(style='r-^', figsize=(15,5), linewidth=1.0)
+	plt.xlabel('Time ticks')
+	plt.ylabel('TS values')
+	plt.legend()
+	return ax
+	
+def InitExponentialSmoothing(x, h, Params):
+
     T = len(x)
     alpha = Params['alpha']
     AdaptationPeriod=Params['AdaptationPeriod']
