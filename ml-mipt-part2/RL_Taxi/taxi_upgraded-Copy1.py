@@ -61,7 +61,6 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
                             if a==0: # South
                                 newrow = min(row+1, maxR)
                                 # добавим награду за уменьшение расстояния
-                                #reward -= self.evaluate_reward(a, passidx, destidx, newrow, newcol)
                             elif a==1: # North
                                 newrow = max(row-1, 0)
                             if a==2 and self.desc[1+row,2*col+2]==b":": # West
@@ -93,89 +92,48 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
         reward = 0
         if (passidx != 4):
             target_row, target_col = self.locs[passidx]
-            if (1 <= row <= 2):
-                reward -= (abs(target_row - row) + abs(target_col - col))
-            elif (row == 0):
-                if (target_row == 0):
-                    if (col == target_col):
-                        if (action == 4):
-                            reward += 10
-                    else:
-                        distance = target_col - col
-                        if (distance < 0):
-                            if (col >= 2):
-                                reward -= (2 + abs(distance))
-                            else:
-                                reward -= abs(distance)
-                        else:
-                            if (col < 2):
-                                reward -= (2 + abs(distance))
-                            else:
-                                reward -= abs(distance)
-                elif (target_row == 4):
-                    reward -= (abs(target_row - row) + abs(target_col - col))
-            elif (3 <= row <= 4):
-                if (target_row == 4):
-                    if (col == target_col and action == 4):
-                        reward += 10
-                    else:
-                        hor_distance = target_col - col
-                        vert_distance = target_row - row
-                        if (hor_distance < 0):
-                            if (col == 4):
-                                reward -= (abs(vert_distance) + abs(hor_distance))
-                            else:
-                                reward -= ((4-abs(vert_distance)) + abs(hor_distance))
-                        elif (hor_distance == 0):
-                            reward -= abs(vert_distance)
-                        elif (hor_distance > 0):
-                            reward -= ((4-abs(vert_distance)) + abs(hor_distance))
-                            
-                elif (target_row == 0):
-                    reward -= (abs(target_row - row) + abs(target_col - col))
-                
         else:
             target_row, target_col = self.locs[destidx]
-            if (1 <= row <= 2):
-                reward -= (abs(target_row - row) + abs(target_col - col))
-            elif (row == 0):
-                if (target_row == 0):
-                    if (col == target_col):
-                        if (action == 5):
-                            reward += 10
-                    else:
-                        distance = target_col - col
-                        if (distance < 0):
-                            if (col >= 2):
-                                reward -= (2 + abs(distance))
-                            else:
-                                reward -= abs(distance)
+            
+        if (1 <= row <= 2):
+            reward -= (abs(target_row - row) + abs(target_col - col))
+        elif (row == 0):
+            if (target_row == 0):
+                if (col == target_col):
+                    pass
+                else:
+                    distance = target_col - col
+                    if (distance < 0):
+                        if (col >= 2):
+                            reward -= (2 + abs(distance))
                         else:
-                            if (col < 2):
-                                reward -= (2 + abs(distance))
-                            else:
-                                reward -= abs(distance)
-                elif (target_row == 4):
-                    reward -= (abs(target_row - row) + abs(target_col - col))
-            elif (3 <= row <= 4):
-                if (target_row == 4):
-                    if (col == target_col and action == 5):
-                        reward += 10
+                            reward -= abs(distance)
                     else:
-                        hor_distance = target_col - col
-                        vert_distance = target_row - row
-                        if (hor_distance < 0):
-                            if (col == 4):
-                                reward -= (abs(vert_distance) + abs(hor_distance))
-                            else:
-                                reward -= ((4-abs(vert_distance)) + abs(hor_distance))
-                        elif (hor_distance == 0):
-                            reward -= abs(vert_distance)
-                        elif (hor_distance > 0):
+                        if (col < 2):
+                            reward -= (2 + abs(distance))
+                        else:
+                            reward -= abs(distance)
+            elif (target_row == 4):
+                reward -= (abs(target_row - row) + abs(target_col - col))
+        elif (3 <= row <= 4):
+            if (target_row == 4):
+                if (col == target_col):
+                    pass
+                else:
+                    hor_distance = target_col - col
+                    vert_distance = target_row - row
+                    if (hor_distance < 0):
+                        if (col == 4):
+                            reward -= (abs(vert_distance) + abs(hor_distance))
+                        else:
                             reward -= ((4-abs(vert_distance)) + abs(hor_distance))
+                    elif (hor_distance == 0):
+                        reward -= abs(vert_distance)
+                    elif (hor_distance > 0):
+                        reward -= ((4-abs(vert_distance)) + abs(hor_distance))
                             
-                elif (target_row == 0):
-                    reward -= (abs(target_row - row) + abs(target_col - col))
+            elif (target_row == 0):
+                reward -= (abs(target_row - row) + abs(target_col - col))
                     
         return reward
 
