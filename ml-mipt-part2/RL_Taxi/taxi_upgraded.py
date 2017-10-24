@@ -15,7 +15,7 @@ MAP = [
     "+---------+",
 ]
 
-class TaxiEnv(discrete.DiscreteEnv):
+class TaxiEnvUpgr(discrete.DiscreteEnv):
     """
     The Taxi Problem
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"
@@ -71,8 +71,9 @@ class TaxiEnv(discrete.DiscreteEnv):
                             elif a==4: # pickup
                                 if (passidx < 4 and taxiloc == locs[passidx]):
                                     newpassidx = 4
+                                    reward = 10
                                 else:
-                                    reward = -10
+                                    reward -= 10
                             elif a==5: # dropoff
                                 if (taxiloc == locs[destidx]) and passidx==4:
                                     done = True
@@ -81,12 +82,13 @@ class TaxiEnv(discrete.DiscreteEnv):
                                     newpassidx = locs.index(taxiloc)
                                 else:
                                     reward = -10
+                            reward += self.evaluate_reward(a, passidx, destidx, newrow, newcol)
                             newstate = self.encode(newrow, newcol, newpassidx, destidx)
                             P[state][a].append((1.0, newstate, reward, done))
         isd /= isd.sum()
         discrete.DiscreteEnv.__init__(self, nS, nA, P, isd)
         
-    def evaluate_reward(action, passidx, destidx, row, col):
+    def evaluate_reward(self, action, passidx, destidx, row, col):
         # если пассажир ещё не в такси, то 
         # от награды отнимем расстояние, которое осталось доехать да пассажира
         reward = 0
@@ -97,7 +99,8 @@ class TaxiEnv(discrete.DiscreteEnv):
             elif (row == 0):
                 if (target_row == 0):
                     if (col == target_col):
-                        reward += 10
+                        if (action == 4):
+                            reward += 10
                     else:
                         distance = target_col - col
                         if (distance < 0):
@@ -114,21 +117,68 @@ class TaxiEnv(discrete.DiscreteEnv):
                     reward -= (abs(target_row - row) + abs(target_col - col))
             elif (3 <= row <= 4):
                 if (target_row == 4):
-                    if (col == target_col):
+                    if (col == target_col and action == 4):
                         reward += 10
                     else:
                         hor_distance = target_col - col
                         vert_distance = target_row - row
                         if (hor_distance < 0):
-                            reward -= ((4-vert_distance) + abs(hor_distance))
+                            if (col == 4):
+                                reward -= (abs(vert_distance) + abs(hor_distance))
+                            else:
+                                reward -= ((4-abs(vert_distance)) + abs(hor_distance))
                         elif (hor_distance == 0):
                             reward -= abs(vert_distance)
                         elif (hor_distance > 0):
+                            reward -= ((4-abs(vert_distance)) + abs(hor_distance))
                             
                 elif (target_row == 0):
                     reward -= (abs(target_row - row) + abs(target_col - col))
                 
-            pass
+        else:
+            target_row, target_col = self.locs[destidx]
+            if (1 <= row <= 2):
+                reward -= (abs(target_row - row) + abs(target_col - col))
+            elif (row == 0):
+                if (target_row == 0):
+                    if (col == target_col):
+                        if (action == 5):
+                            reward += 10
+                    else:
+                        distance = target_col - col
+                        if (distance < 0):
+                            if (col >= 2):
+                                reward -= (2 + abs(distance))
+                            else:
+                                reward -= abs(distance)
+                        else:
+                            if (col < 2):
+                                reward -= (2 + abs(distance))
+                            else:
+                                reward -= abs(distance)
+                elif (target_row == 4):
+                    reward -= (abs(target_row - row) + abs(target_col - col))
+            elif (3 <= row <= 4):
+                if (target_row == 4):
+                    if (col == target_col and action == 5):
+                        reward += 10
+                    else:
+                        hor_distance = target_col - col
+                        vert_distance = target_row - row
+                        if (hor_distance < 0):
+                            if (col == 4):
+                                reward -= (abs(vert_distance) + abs(hor_distance))
+                            else:
+                                reward -= ((4-abs(vert_distance)) + abs(hor_distance))
+                        elif (hor_distance == 0):
+                            reward -= abs(vert_distance)
+                        elif (hor_distance > 0):
+                            reward -= ((4-abs(vert_distance)) + abs(hor_distance))
+                            
+                elif (target_row == 0):
+                    reward -= (abs(target_row - row) + abs(target_col - col))
+                    
+        return reward
 
     def encode(self, taxirow, taxicol, passloc, destidx):
         # (5) 5, 5, 4
