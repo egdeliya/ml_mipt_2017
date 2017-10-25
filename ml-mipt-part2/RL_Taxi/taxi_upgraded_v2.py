@@ -15,7 +15,7 @@ MAP = [
     "+---------+",
 ]
 
-class TaxiEnvUpgr(discrete.DiscreteEnv):
+class TaxiEnvUpgrV2(discrete.DiscreteEnv):
     """
     The Taxi Problem
     from "Hierarchical Reinforcement Learning with the MAXQ Value Function Decomposition"

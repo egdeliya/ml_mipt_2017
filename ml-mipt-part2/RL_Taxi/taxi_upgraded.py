@@ -99,7 +99,7 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
                 if (target_row == 0):
                     if (col == target_col):
                         if (action == 4):
-                            reward += 10
+                            reward += 0
                     else:
                         distance = target_col - col
                         if (distance < 0):
@@ -117,7 +117,7 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
             elif (3 <= row <= 4):
                 if (target_row == 4):
                     if (col == target_col and action == 4):
-                        reward += 10
+                        reward += 0
                     else:
                         hor_distance = target_col - col
                         vert_distance = target_row - row
@@ -142,7 +142,7 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
                 if (target_row == 0):
                     if (col == target_col):
                         if (action == 5):
-                            reward += 10
+                            reward += 0
                     else:
                         distance = target_col - col
                         if (distance < 0):
@@ -160,7 +160,7 @@ class TaxiEnvUpgr(discrete.DiscreteEnv):
             elif (3 <= row <= 4):
                 if (target_row == 4):
                     if (col == target_col and action == 5):
-                        reward += 10
+                        reward += 0
                     else:
                         hor_distance = target_col - col
                         vert_distance = target_row - row
